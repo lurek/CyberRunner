@@ -1,0 +1,504 @@
+/**
+ * AbilityButtons.css - FIXED v4
+ * ✅ Fixed mobile overlapping with health bar
+ * ✅ Better safe area handling
+ * ✅ Proper spacing from bottom elements
+ */
+
+.ability-buttons-container {
+  position: fixed;
+  /* Moved up significantly to avoid overlapping with health bar */
+  bottom: calc(var(--mobile-padding-bottom) + 60px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 80; /* Below HUD (100) but above game (50) */
+  pointer-events: none;
+}
+
+.ability-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+  gap: 10px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ability-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+/* Ready State - Glowing and pulsing */
+.ability-button.ready {
+  border-color: #00ff00;
+  background: rgba(0, 255, 0, 0.1);
+  box-shadow: 
+    0 0 20px rgba(0, 255, 0, 0.5),
+    0 0 40px rgba(0, 255, 0, 0.3),
+    inset 0 0 20px rgba(0, 255, 0, 0.1);
+  animation: ability-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ability-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(0, 255, 0, 0.5),
+      0 0 40px rgba(0, 255, 0, 0.3),
+      inset 0 0 20px rgba(0, 255, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(0, 255, 0, 0.8),
+      0 0 60px rgba(0, 255, 0, 0.5),
+      inset 0 0 30px rgba(0, 255, 0, 0.2);
+  }
+}
+
+/* Active State - Bright glow */
+.ability-button.active {
+  border-color: #00ffff;
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.8),
+    0 0 60px rgba(0, 255, 255, 0.5),
+    inset 0 0 30px rgba(0, 255, 255, 0.2);
+  animation: ability-active-glow 1s ease-in-out infinite;
+}
+
+@keyframes ability-active-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 30px rgba(0, 255, 255, 0.8),
+      0 0 60px rgba(0, 255, 255, 0.5),
+      inset 0 0 30px rgba(0, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px rgba(0, 255, 255, 1),
+      0 0 80px rgba(0, 255, 255, 0.7),
+      inset 0 0 40px rgba(0, 255, 255, 0.3);
+  }
+}
+
+/* On Cooldown - Dimmed */
+.ability-button.cooldown {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.8);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Ability Icon */
+.ability-icon {
+  font-size: 28px;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.ability-button.ready .ability-icon {
+  animation: icon-bounce 0.6s ease-in-out infinite;
+}
+
+.ability-button.active .ability-icon {
+  animation: icon-glow 0.8s ease-in-out infinite;
+}
+
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes icon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.8));
+  }
+}
+
+/* Cooldown Ring */
+.cooldown-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.cooldown-text {
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Active Indicator - Pulsing dot */
+.ability-active-indicator {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 10px;
+  height: 10px;
+  background: #00ffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+  z-index: 3;
+}
+
+.ability-active-indicator .pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #00ffff;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Ready Glow - Subtle indicator */
+.ready-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 255, 0, 0.3) 0%, transparent 70%);
+  animation: ready-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ready-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Charge Indicator - For Speed Boost */
+.charge-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff9800;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  border: 2px solid #ff9800;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.6);
+}
+
+/* Ability Label */
+.ability-label {
+  position: absolute;
+  bottom: -20px;
+  font-size: 9px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.ability-button:hover .ability-label {
+  color: rgba(255, 255, 255, 1);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Click feedback */
+.ability-button:active {
+  transform: scale(0.95);
+}
+
+/* Hover Effects (Desktop only) */
+@media (hover: hover) {
+  .ability-button.ready:hover {
+    transform: scale(1.05);
+    box-shadow: 
+      0 0 40px rgba(0, 255, 0, 0.8),
+      0 0 80px rgba(0, 255, 0, 0.5);
+  }
+  
+  .ability-button.cooldown:hover {
+    transform: none;
+  }
+}
+
+/* ========================================
+   MOBILE RESPONSIVE - CRITICAL FIXES
+   ======================================== */
+
+/* Small Mobile Phones (Portrait) */
+@media (max-width: 640px) {
+  .ability-buttons-container {
+    /* Even more spacing on small screens */
+    bottom: calc(var(--mobile-padding-bottom) + 70px);
+  }
+  
+  .ability-buttons-grid {
+    grid-template-columns: repeat(4, 50px);
+    gap: 6px;
+    padding: 8px;
+  }
+  
+  .ability-button {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+  }
+  
+  .ability-icon {
+    font-size: 22px;
+  }
+  
+  .ability-label {
+    display: none; /* Hide labels on mobile to save space */
+  }
+  
+  .charge-indicator {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    top: -4px;
+    right: -4px;
+  }
+}
+
+/* Very Small Screens (iPhone SE, older phones) */
+@media (max-width: 375px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 65px);
+  }
+  
+  .ability-buttons-grid {
+    grid-template-columns: repeat(4, 45px);
+    gap: 5px;
+    padding: 6px;
+  }
+  
+  .ability-button {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .ability-icon {
+    font-size: 20px;
+  }
+}
+
+/* Tablet Portrait */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 65px);
+  }
+  
+  .ability-buttons-grid {
+    grid-template-columns: repeat(4, 55px);
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .ability-button {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .ability-icon {
+    font-size: 24px;
+  }
+  
+  .ability-label {
+    font-size: 8px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 60px);
+  }
+  
+  .ability-buttons-grid {
+    grid-template-columns: repeat(4, 60px);
+    gap: 10px;
+  }
+  
+  .ability-button {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .ability-icon {
+    font-size: 28px;
+  }
+}
+
+/* Landscape Mode - Special handling */
+@media (orientation: landscape) and (max-height: 500px) {
+  .ability-buttons-container {
+    /* In landscape, move buttons to side instead of bottom */
+    bottom: 50%;
+    right: calc(var(--mobile-padding-right) + 10px);
+    left: auto;
+    transform: translateY(50%);
+  }
+  
+  .ability-buttons-grid {
+    /* Stack vertically in landscape */
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 45px);
+    gap: 6px;
+    padding: 8px;
+  }
+  
+  .ability-button {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .ability-icon {
+    font-size: 20px;
+  }
+  
+  .ability-label {
+    display: none;
+  }
+}
+
+/* iPad Pro and large tablets */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 70px);
+  }
+  
+  .ability-buttons-grid {
+    grid-template-columns: repeat(4, 65px);
+    gap: 12px;
+  }
+  
+  .ability-button {
+    width: 65px;
+    height: 65px;
+  }
+  
+  .ability-icon {
+    font-size: 30px;
+  }
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+  .ability-button {
+    border-width: 3px;
+  }
+  
+  .ability-button.ready {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.3);
+  }
+  
+  .ability-button.active {
+    border-color: #00ffff;
+    background: rgba(0, 255, 255, 0.3);
+  }
+}
+
+/* Reduce Motion - Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .ability-button,
+  .ability-button.ready,
+  .ability-button.active,
+  .ability-icon,
+  .ability-active-indicator .pulse,
+  .ready-glow {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Safe Area Adjustments for devices with notches/home indicators */
+@supports (padding: max(0px)) {
+  .ability-buttons-container {
+    /* Extra safe spacing on devices with home indicators */
+    bottom: max(
+      calc(var(--mobile-padding-bottom) + 60px),
+      calc(env(safe-area-inset-bottom) + 70px)
+    );
+  }
+}
+
+/* iPhone X and newer (notched devices) */
+@media only screen 
+  and (device-width: 375px) 
+  and (device-height: 812px) 
+  and (-webkit-device-pixel-ratio: 3) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 80px);
+  }
+}
+
+/* iPhone XS Max, 11 Pro Max, 12 Pro Max */
+@media only screen 
+  and (device-width: 414px) 
+  and (device-height: 896px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 85px);
+  }
+}
+
+/* iPhone 12/13/14 (standard) */
+@media only screen 
+  and (device-width: 390px) 
+  and (device-height: 844px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 80px);
+  }
+}
+
+/* Android devices with gesture navigation */
+@media (max-width: 640px) and (min-height: 700px) {
+  .ability-buttons-container {
+    bottom: calc(var(--mobile-padding-bottom) + 75px);
+  }
+}

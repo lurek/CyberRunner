@@ -1,0 +1,270 @@
+/**
+ * BoosterSelector.css
+ * Styling for the booster selection UI
+ * Shows grid of available boosters with selection controls
+ */
+
+.booster-selector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.booster-selector-container {
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 720px;
+  width: 92%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.32s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.booster-selector-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.booster-selector-header h1 {
+  color: #e6f7ff;
+  font-size: 28px;
+  margin: 0 0 10px 0;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+  font-family: 'Orbitron', 'Courier New', monospace;
+}
+
+.booster-selector-header p {
+  color: #aaa;
+  font-size: 14px;
+  margin: 0;
+}
+
+.booster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.booster-card {
+  background: rgba(20, 30, 60, 0.9);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.booster-card:hover {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+  transform: translateY(-4px) scale(1.01);
+}
+
+.booster-card.selected {
+  border-color: rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.1));
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+}
+
+.booster-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.booster-icon {
+  font-size: 32px;
+}
+
+.booster-owned-count {
+  background: rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.booster-name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-family: 'Orbitron', 'Courier New', monospace;
+}
+
+.booster-description {
+  color: #999;
+  font-size: 12px;
+  margin-bottom: 10px;
+  min-height: 24px;
+}
+
+.booster-selector-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #00ff00;
+}
+
+.booster-summary {
+  background: rgba(0, 255, 0, 0.05);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.summary-title {
+  color: #00ff00;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.selected-boosters-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.selected-booster-tag {
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.no-boosters-selected {
+  color: #888;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.booster-selector-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.booster-selector-button {
+  padding: 12px 30px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Orbitron', 'Courier New', monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.button-back {
+  background: #444;
+  color: #aaa;
+  border: 2px solid #666;
+}
+
+.button-back:hover {
+  background: #555;
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.button-start {
+  background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+  color: #000;
+  border: 2px solid #00ff00;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.button-start:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+  transform: scale(1.05);
+}
+
+.button-start:active {
+  transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .booster-selector-container {
+    padding: 14px;
+    width: 97%;
+  }
+
+  .booster-selector-header h1 {
+    font-size: 22px;
+  }
+
+  .booster-grid {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+  }
+
+  .booster-selector-buttons {
+    flex-direction: column;
+  }
+
+  .booster-selector-button {
+    width: 100%;
+  }
+}
+
+/* Scrollbar styling */
+.booster-selector-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.booster-selector-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.booster-selector-container::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+}
+
+.booster-selector-container::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
+}

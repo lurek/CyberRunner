@@ -1,0 +1,326 @@
+import * as THREE from "three";
+
+export function createDetailedPlayer(geometriesToDispose, materialsToDispose, envMap = null) {
+  const player = new THREE.Group();
+  player.name = "player";
+
+  // --- Materials ---
+  const armorMat = new THREE.MeshStandardMaterial({
+    color: 0x2a2a4e, // Dark blue-grey
+    emissive: 0x0066ff,
+    emissiveIntensity: 0.2,
+    metalness: 0.8,
+    roughness: 0.3,
+    name: "armorMat", // ✅ PHASE 1.5: Add name for animation
+    envMap: envMap // ✅ PHASE 1.5: Add reflection map
+  });
+  materialsToDispose.push(armorMat);
+
+  const suitMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1a2e, // Dark undersuit
+    metalness: 0.5,
+    roughness: 0.6,
+  });
+  materialsToDispose.push(suitMat);
+
+  const glowMat = new THREE.MeshStandardMaterial({
+    color: 0x5b8fc7, // Cyan glow
+    emissive: 0x5b8fc7,
+    emissiveIntensity: 1.0,
+    metalness: 1,
+    roughness: 0,
+    name: "glowMat" // ✅ PHASE 1.5: Add name for animation
+  });
+  materialsToDispose.push(glowMat);
+
+  const visorMat = new THREE.MeshStandardMaterial({
+    color: 0x5b8fc7,
+    emissive: 0x5b8fc7,
+    emissiveIntensity: 1.0,
+    metalness: 1,
+    roughness: 0,
+    transparent: true,
+    opacity: 0.7,
+  });
+  materialsToDispose.push(visorMat);
+
+  const metalMat = new THREE.MeshStandardMaterial({
+    color: 0xaaaaee,
+    metalness: 0.9,
+    roughness: 0.4,
+    name: "metalMat", // ✅ PHASE 1.5: Add name
+    envMap: envMap // ✅ PHASE 1.5: Add reflection map
+  });
+  materialsToDispose.push(metalMat);
+
+  // --- OPTIMIZATION: Replaced 'createCapsule' ---
+  const createCapsule = (radius, height, radialSegments = 8) => {
+    const cylinderHeight = height - (radius * 2); 
+    const capsuleGeo = new THREE.CapsuleGeometry(
+      radius, 
+      cylinderHeight, 
+      Math.floor(radialSegments / 2),
+      radialSegments
+    );
+    geometriesToDispose.push(capsuleGeo);
+    const capsuleMesh = new THREE.Mesh(capsuleGeo, suitMat);
+    return capsuleMesh;
+  };
+
+  // --- Torso ---
+  const torso = new THREE.Group();
+  torso.name = "torso";
+  const torsoGeo = new THREE.BoxGeometry(0.7, 0.9, 0.5);
+  geometriesToDispose.push(torsoGeo); 
+  const torsoMesh = new THREE.Mesh(torsoGeo, suitMat);
+  torsoMesh.position.y = 1.3;
+  torsoMesh.castShadow = false; // ✅ PERF: Disabled
+  torso.add(torsoMesh);
+
+  // Chest Plate
+  const chestGeo = new THREE.BoxGeometry(0.72, 0.5, 0.52);
+  geometriesToDispose.push(chestGeo); 
+  const chestMesh = new THREE.Mesh(chestGeo, armorMat);
+  chestMesh.position.y = 1.5;
+  chestMesh.castShadow = false; // ✅ PERF: Disabled
+  chestMesh.name = "chest_plate";
+  torso.add(chestMesh);
+
+  // Energy Core
+  const coreGeo = new THREE.IcosahedronGeometry(0.12, 1);
+  geometriesToDispose.push(coreGeo); 
+  const coreMesh = new THREE.Mesh(coreGeo, glowMat);
+  coreMesh.name = "energy_core";
+  coreMesh.position.set(0, 1.5, 0.27);
+  torso.add(coreMesh);
+
+  // Pelvis
+  const pelvisGeo = new THREE.BoxGeometry(0.65, 0.35, 0.45);
+  geometriesToDispose.push(pelvisGeo); 
+  const pelvisMesh = new THREE.Mesh(pelvisGeo, suitMat);
+  pelvisMesh.position.y = 0.7;
+  pelvisMesh.castShadow = false; // ✅ PERF: Disabled
+  torso.add(pelvisMesh);
+
+  player.add(torso);
+
+  // --- Head ---
+  const head = new THREE.Group();
+  head.name = "head";
+  const headGeo = new THREE.SphereGeometry(0.35, 20, 20); 
+  geometriesToDispose.push(headGeo); 
+  const headMesh = new THREE.Mesh(headGeo, armorMat);
+  headMesh.castShadow = false; // ✅ PERF: Disabled
+  headMesh.name = "head_helmet";
+  head.add(headMesh);
+
+  // Visor
+  const visorGeo = new THREE.SphereGeometry(0.3, 20, 20, 0, Math.PI * 0.8, 0, Math.PI * 0.6);
+  geometriesToDispose.push(visorGeo); 
+  const visorMesh = new THREE.Mesh(visorGeo, visorMat);
+  visorMesh.position.z = 0.2;
+  head.add(visorMesh);
+
+  // "Ears" / Side Pods
+  const podGeo = new THREE.BoxGeometry(0.1, 0.15, 0.15);
+  geometriesToDispose.push(podGeo); 
+  const leftPod = new THREE.Mesh(podGeo, metalMat);
+  leftPod.position.x = -0.35;
+  head.add(leftPod);
+  const rightPod = new THREE.Mesh(podGeo, metalMat);
+  rightPod.position.x = 0.35;
+  head.add(rightPod);
+
+  // ✅ PHASE 1.4: Add Player Headlight
+  const headLight = new THREE.SpotLight(0x5b8fc7, 3.0, 25, Math.PI / 4, 0.5, 1.5);
+  headLight.position.set(0, 0.2, 0.4);
+  headLight.castShadow = false;
+  headLight.name = "player_headlight";
+  
+  const headLightTarget = new THREE.Object3D();
+  headLightTarget.position.set(0, 0, -20);
+  
+  head.add(headLight);
+  head.add(headLightTarget);
+  headLight.target = headLightTarget;
+
+  head.position.y = 2.15;
+  player.add(head);
+
+  // --- Arms (Left) ---
+  const leftArm = new THREE.Group();
+  leftArm.name = "left_arm";
+  const leftShoulderGeo = new THREE.SphereGeometry(0.22, 12, 12);
+  geometriesToDispose.push(leftShoulderGeo);
+  const leftShoulder = new THREE.Mesh(leftShoulderGeo, armorMat);
+  leftShoulder.castShadow = false; // ✅ PERF: Disabled
+  leftShoulder.name = "left_shoulder";
+  leftArm.add(leftShoulder);
+  
+  const leftUpperArm = createCapsule(0.12, 0.5, 8);
+  leftUpperArm.name = "left_upper_arm";
+  leftUpperArm.position.y = -0.35;
+  leftArm.add(leftUpperArm);
+
+  const leftForearm = createCapsule(0.11, 0.5, 8);
+  leftForearm.name = "left_forearm";
+  leftForearm.position.y = -0.8;
+  leftArm.add(leftForearm);
+
+  const leftHandGeo = new THREE.SphereGeometry(0.13, 10, 10);
+  geometriesToDispose.push(leftHandGeo);
+  const leftHand = new THREE.Mesh(leftHandGeo, metalMat);
+  leftHand.position.y = -1.1;
+  leftHand.castShadow = false; // ✅ PERF: Disabled
+  leftArm.add(leftHand);
+
+  leftArm.position.set(-0.5, 1.75, 0);
+  player.add(leftArm);
+
+  // --- Arms (Right) ---
+  const rightArm = new THREE.Group();
+  rightArm.name = "right_arm";
+  const rightShoulderGeo = new THREE.SphereGeometry(0.22, 12, 12);
+  geometriesToDispose.push(rightShoulderGeo);
+  const rightShoulder = new THREE.Mesh(rightShoulderGeo, armorMat);
+  rightShoulder.castShadow = false; // ✅ PERF: Disabled
+  rightShoulder.name = "right_shoulder";
+  rightArm.add(rightShoulder);
+
+  const rightUpperArm = createCapsule(0.12, 0.5, 8);
+  rightUpperArm.name = "right_upper_arm";
+  rightUpperArm.position.y = -0.35;
+  rightArm.add(rightUpperArm);
+
+  const rightForearm = createCapsule(0.11, 0.5, 8);
+  rightForearm.name = "right_forearm";
+  rightForearm.position.y = -0.8;
+  rightArm.add(rightForearm);
+
+  const rightHandGeo = new THREE.SphereGeometry(0.13, 10, 10);
+  geometriesToDispose.push(rightHandGeo);
+  const rightHand = new THREE.Mesh(rightHandGeo, metalMat);
+  rightHand.position.y = -1.1;
+  rightHand.castShadow = false; // ✅ PERF: Disabled
+  rightArm.add(rightHand);
+
+  rightArm.position.set(0.5, 1.75, 0);
+  player.add(rightArm);
+
+  // --- Legs (Left) ---
+  const leftLeg = new THREE.Group();
+  leftLeg.name = "left_leg";
+  
+  const leftThigh = createCapsule(0.16, 0.55, 8);
+  leftThigh.name = "left_thigh";
+  leftThigh.position.y = 0;
+  leftLeg.add(leftThigh);
+
+  const leftShin = createCapsule(0.14, 0.5, 8);
+  leftShin.name = "left_shin";
+  leftShin.position.y = -0.5;
+  leftLeg.add(leftShin);
+  
+  const leftKneeGeo = new THREE.BoxGeometry(0.2, 0.2, 0.1);
+  geometriesToDispose.push(leftKneeGeo);
+  const leftKnee = new THREE.Mesh(leftKneeGeo, armorMat);
+  leftKnee.position.set(0, -0.25, 0.15);
+  leftKnee.name = "left_knee";
+  leftLeg.add(leftKnee);
+
+  const leftBootGeo = new THREE.BoxGeometry(0.22, 0.15, 0.35);
+  geometriesToDispose.push(leftBootGeo);
+  const leftBoot = new THREE.Mesh(leftBootGeo, metalMat);
+  leftBoot.position.set(0, -0.85, 0.05);
+  leftBoot.castShadow = false; // ✅ PERF: Disabled
+  leftLeg.add(leftBoot);
+
+  leftLeg.position.set(-0.2, 0.4, 0);
+  player.add(leftLeg);
+
+  // --- Legs (Right) ---
+  const rightLeg = new THREE.Group();
+  rightLeg.name = "right_leg";
+
+  const rightThigh = createCapsule(0.16, 0.55, 8);
+  rightThigh.name = "right_thigh";
+  rightThigh.position.y = 0;
+  rightLeg.add(rightThigh);
+
+  const rightShin = createCapsule(0.14, 0.5, 8);
+  rightShin.name = "right_shin";
+  rightShin.position.y = -0.5;
+  rightLeg.add(rightShin);
+
+  const rightKneeGeo = new THREE.BoxGeometry(0.2, 0.2, 0.1);
+  geometriesToDispose.push(rightKneeGeo);
+  const rightKnee = new THREE.Mesh(rightKneeGeo, armorMat);
+  rightKnee.position.set(0, -0.25, 0.15);
+  rightKnee.name = "right_knee";
+  rightLeg.add(rightKnee);
+
+  const rightBootGeo = new THREE.BoxGeometry(0.22, 0.15, 0.35);
+  geometriesToDispose.push(rightBootGeo);
+  const rightBoot = new THREE.Mesh(rightBootGeo, metalMat);
+  rightBoot.position.set(0, -0.85, 0.05);
+  rightBoot.castShadow = false; // ✅ PERF: Disabled
+  rightLeg.add(rightBoot);
+
+  rightLeg.position.set(0.2, 0.4, 0);
+  player.add(rightLeg);
+
+  // --- Jetpack ---
+  const backpack = new THREE.Group();
+  backpack.name = "backpack";
+  const backpackGeo = new THREE.BoxGeometry(0.5, 0.6, 0.25);
+  geometriesToDispose.push(backpackGeo);
+  const backpackMesh = new THREE.Mesh(backpackGeo, armorMat);
+  backpackMesh.castShadow = false; // ✅ PERF: Disabled
+  backpackMesh.name = "backpack_shell";
+  backpack.add(backpackMesh);
+
+  // Thrusters
+  const thrusterGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.3, 8);
+  geometriesToDispose.push(thrusterGeo); 
+  const thrusterMat = new THREE.MeshStandardMaterial({
+    color: 0x333333,
+    emissive: 0xff6600,
+    emissiveIntensity: 0.5,
+    metalness: 1,
+    envMap: envMap
+  });
+  materialsToDispose.push(thrusterMat);
+
+  const leftThruster = new THREE.Mesh(thrusterGeo, thrusterMat);
+  leftThruster.name = "left_thruster";
+  leftThruster.position.set(-0.15, -0.2, -0.15);
+  leftThruster.rotation.x = Math.PI / 2;
+  backpack.add(leftThruster);
+
+  const rightThruster = new THREE.Mesh(thrusterGeo, thrusterMat);
+  rightThruster.name = "right_thruster";
+  rightThruster.position.set(0.15, -0.2, -0.15);
+  rightThruster.rotation.x = Math.PI / 2;
+  backpack.add(rightThruster);
+
+  backpack.position.set(0, 1.3, -0.38);
+  player.add(backpack);
+
+  // ✅ --- PERFORMANCE: Simple Shadow Caster ---
+  // This is an invisible mesh that casts a simple, fast shadow
+  // instead of the complex full player model.
+  const shadowCasterGeo = new THREE.CapsuleGeometry(0.4, 1.0, 4, 8);
+  geometriesToDispose.push(shadowCasterGeo);
+  const shadowCasterMat = new THREE.ShadowMaterial({ opacity: 0.5 });
+  materialsToDispose.push(shadowCasterMat);
+  
+  const shadowCaster = new THREE.Mesh(shadowCasterGeo, shadowCasterMat);
+  shadowCaster.name = "shadow_caster";
+  shadowCaster.position.y = 0.9; // Position at the player's core
+  shadowCaster.castShadow = true; // ✅ ONLY this casts a shadow
+  shadowCaster.receiveShadow = false;
+  player.add(shadowCaster);
+  // --- End Performance Fix ---
+
+  return player;
+}

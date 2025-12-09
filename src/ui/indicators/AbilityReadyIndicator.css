@@ -1,0 +1,293 @@
+/* Ability Ready Indicator Styles */
+
+.ability-indicator {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(91, 143, 199, 0.15);
+  border: 2px solid rgba(91, 143, 199, 0.6);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  animation: slideIn 0.3s ease-out;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 0 20px rgba(91, 143, 199, 0.3);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.ability-indicator.pulse {
+  animation: slideIn 0.3s ease-out, pulse 1s ease-in-out infinite;
+}
+
+/* Fade out animation */
+.ability-indicator.fade-out {
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(-20px) !important;
+  pointer-events: none;
+}
+
+.ability-indicator.wall-run.left {
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ability-indicator.wall-run.right {
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ability-indicator.grapple {
+  /* Default Desktop Position */
+  top: calc(var(--safe-area-inset-top, 0px) + 100px);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  white-space: normal;
+  text-align: center;
+}
+
+.ability-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px rgba(91, 143, 199, 0.8));
+  flex-shrink: 0;
+}
+
+.ability-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.ability-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  color: #5b8fc7;
+  text-shadow: 0 0 10px rgba(91, 143, 199, 0.8);
+  letter-spacing: 1px;
+}
+
+.ability-instruction {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 8px rgba(91, 143, 199, 0.6);
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  max-width: 600px;
+}
+
+.ability-input {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Grapple Targeting UI */
+.grapple-targeting-ui {
+  position: fixed;
+  top: calc(var(--safe-area-inset-top, 0px) + 90px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(255, 102, 0, 0.15);
+  border: 2px solid rgba(255, 102, 0, 0.8);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  animation: fadeIn 0.2s ease-out;
+  box-shadow: 0 0 30px rgba(255, 102, 0, 0.5);
+}
+
+.targeting-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.scanning-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff6600;
+  text-shadow: 0 0 10px rgba(255, 102, 0, 0.8);
+  letter-spacing: 2px;
+  animation: scanPulse 1s ease-in-out infinite;
+}
+
+.target-count {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 102, 0, 0.5);
+}
+
+.targeting-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.control-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Lane Indicators */
+.lane-indicators {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.lane-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.lane-dot.active {
+  background: rgba(91, 143, 199, 0.8);
+  border-color: #5b8fc7;
+  box-shadow: 0 0 15px rgba(91, 143, 199, 0.8);
+  transform: scale(1.3);
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(91, 143, 199, 0.3);
+    border-color: rgba(91, 143, 199, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(91, 143, 199, 0.6);
+    border-color: rgba(91, 143, 199, 1);
+  }
+}
+
+@keyframes scanPulse {
+  0%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 102, 0, 0.8);
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow: 0 0 20px rgba(255, 102, 0, 1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+  /* ✅ FIXED: Move Grapple Indicator to TOP area, below score */
+  /* Score is at ~50px from top. We place this at 130px to clear it */
+  .ability-indicator.grapple {
+    top: calc(var(--safe-area-inset-top, 0px) + 130px); 
+    bottom: auto;
+    padding: 8px 16px;
+    gap: 10px;
+    transform: translateX(-50%) scale(0.95);
+    background: rgba(91, 143, 199, 0.2);
+    max-width: 95%;
+  }
+
+  .ability-indicator.grapple.fade-out {
+    transform: translateX(-50%) translateY(-20px) scale(0.95) !important;
+  }
+
+  .ability-indicator {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .ability-icon {
+    font-size: 24px;
+  }
+
+  .ability-name {
+    font-size: 11px;
+  }
+
+  .ability-instruction {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .ability-input {
+    font-size: 9px;
+  }
+
+  .grapple-targeting-ui {
+    top: calc(var(--safe-area-inset-top, 0px) + 140px);
+    padding: 10px 16px;
+    transform: translateX(-50%) scale(0.9);
+  }
+
+  .scanning-text {
+    font-size: 14px;
+  }
+
+  .target-count {
+    font-size: 11px;
+  }
+
+  .control-hint {
+    font-size: 10px;
+  }
+
+  .lane-indicators {
+    bottom: 80px;
+  }
+}

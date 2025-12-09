@@ -1,0 +1,72 @@
+/* --- INTER (Main UI Font) --- */
+/* inter-regular - latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+    url('/fonts/inter-v20-latin-regular.woff2') format('woff2');
+  /* /public/fonts/ */
+}
+
+/* inter-600 - latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: local(''),
+    url('/fonts/inter-v20-latin-600.woff2') format('woff2');
+  /* /public/fonts/ */
+}
+
+/* inter-700 - latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  src: local(''),
+    url('/fonts/inter-v20-latin-700.woff2') format('woff2');
+  /* /public/fonts/ */
+}
+
+/* inter-800 - latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 800;
+  src: local(''),
+    url('/fonts/inter-v20-latin-800.woff2') format('woff2');
+  /* /public/fonts/ */
+}
+
+/* --- ORBITRON (Title/HUD Font) --- */
+/* orbitron-600 - latin */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 600;
+  src: local(''),
+    url('/fonts/orbitron-v35-latin-600.woff2') format('woff2');
+  /* /public/fonts/ */
+}
+
+/* orbitron-700 - latin */
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 700;
+  src: local(''),
+    url('/fonts/orbitron-v35-latin-700.woff2') format('woff2');
+  /* /public/fonts/ */
+}
+
+/* --- FREDOKA ONE (Unused in index.css, but was in original import) --- */
+/* fredoka-one-regular - latin */
+@font-face {
+  font-family: 'Fredoka One';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+    url('/fonts/fredoka-v17-latin-regular.woff2') format('woff2');
+  /* /public/fonts/ */
+}

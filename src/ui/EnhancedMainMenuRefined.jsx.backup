@@ -1,0 +1,575 @@
+import React, { useEffect, useRef, useState, Suspense } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { PerspectiveCamera } from '@react-three/drei';
+import * as THREE from 'three';
+import { Play, ShoppingCart, User, LogIn, Sparkles } from 'lucide-react';
+import { RefinedColors } from '../utils/RefinedMaterials';
+import { CHARACTERS } from '../utils/constants';
+
+// ============================================
+// CHARACTER COLOR PALETTE
+// ============================================
+const CHARACTER_COLORS = {
+  default: {
+    primary: '#5b8fc7',
+    secondary: '#9b7fc7',
+    accent: '#5ba8a0',
+    light: '#00d4ff',
+  },
+  speed_demon: {
+    primary: '#ff6b6b',
+    secondary: '#ff8e8e',
+    accent: '#ffb3b3',
+    light: '#ff4444',
+  },
+  tank: {
+    primary: '#4a4a4a',
+    secondary: '#6a6a6a',
+    accent: '#8a8a8a',
+    light: '#999999',
+  },
+  coin_magnet: {
+    primary: '#ffb84d',
+    secondary: '#ffc966',
+    accent: '#ffe0b3',
+    light: '#ffcc00',
+  },
+  neon_ninja: {
+    primary: '#00d4ff',
+    secondary: '#33ddff',
+    accent: '#66e6ff',
+    light: '#00ffff',
+  },
+  cyber_samurai: {
+    primary: '#9b7fc7',
+    secondary: '#b399d6',
+    accent: '#c9b3e6',
+    light: '#cc00ff',
+  },
+  holo_ghost: {
+    primary: '#a8ff00',
+    secondary: '#c4ff4d',
+    accent: '#d9ff80',
+    light: '#00ff00',
+  }
+};
+
+// ============================================
+// ENHANCED PLAYER MODEL
+// ============================================
+function PlayerModel({ selectedCharacter = 'default' }) {
+  const groupRef = useRef();
+  const colors = CHARACTER_COLORS[selectedCharacter] || CHARACTER_COLORS.default;
+  
+  useFrame((state) => {
+    if (groupRef.current) {
+      const time = state.clock.elapsedTime;
+      groupRef.current.position.y = Math.sin(time * 1.2) * 0.3;
+      groupRef.current.rotation.x = Math.sin(time * 0.5) * 0.05;
+    }
+  });
+  
+  return (
+    <group ref={groupRef} position={[0, 0, 0]} scale={[2.8, 2.8, 2.8]}>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[0.9, 1.3, 0.45]} />
+        <meshStandardMaterial 
+          color={colors.primary} 
+          emissive={colors.primary} 
+          emissiveIntensity={0.45}
+          metalness={0.85} 
+          roughness={0.15}
+        />
+      </mesh>
+      
+      <mesh position={[0, 0, 0.24]}>
+        <boxGeometry args={[0.6, 0.08, 0.02]} />
+        <meshBasicMaterial color={colors.light} />
+      </mesh>
+      
+      <mesh position={[0, 0.9, 0]}>
+        <boxGeometry args={[0.6, 0.55, 0.55]} />
+        <meshStandardMaterial 
+          color={colors.secondary} 
+          emissive={colors.secondary} 
+          emissiveIntensity={0.35}
+          metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
+
+      <mesh position={[-0.45, 0.35, 0]}>
+        <boxGeometry args={[0.35, 0.5, 0.45]} />
+        <meshStandardMaterial 
+          color={colors.accent} 
+          emissive={colors.accent} 
+          emissiveIntensity={0.3}
+          metalness={0.7}
+          roughness={0.25}
+        />
+      </mesh>
+
+      <mesh position={[0.45, 0.35, 0]}>
+        <boxGeometry args={[0.35, 0.5, 0.45]} />
+        <meshStandardMaterial 
+          color={colors.accent} 
+          emissive={colors.accent} 
+          emissiveIntensity={0.3}
+          metalness={0.7}
+          roughness={0.25}
+        />
+      </mesh>
+
+      <mesh position={[0, 0.2, 0.25]}>
+        <boxGeometry args={[0.5, 0.6, 0.1]} />
+        <meshStandardMaterial 
+          color={colors.light} 
+          emissive={colors.light} 
+          emissiveIntensity={0.4}
+          metalness={0.9}
+          roughness={0.1}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+// ============================================
+// BACKGROUND PARTICLES
+// ============================================
+function BackgroundParticles({ selectedCharacter = 'default' }) {
+  const particlesRef = useRef();
+  const particleCount = 40;
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+  
+  const charColors = CHARACTER_COLORS[selectedCharacter] || CHARACTER_COLORS.default;
+  
+  const colorPalette = [
+    new THREE.Color(charColors.primary),
+    new THREE.Color(charColors.light),
+  ];
+  
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 30;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 25;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 15 - 8;
+    
+    const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+    colors[i * 3] = color.r; 
+    colors[i * 3 + 1] = color.g; 
+    colors[i * 3 + 2] = color.b;
+  }
+  
+  useFrame((state) => { 
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.08;
+      particlesRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.01) * 0.2;
+    }
+  });
+  
+  return (
+    <points ref={particlesRef}>
+      <bufferGeometry>
+        <bufferAttribute 
+          attach="attributes-position" 
+          count={particleCount} 
+          array={positions} 
+          itemSize={3} 
+        />
+        <bufferAttribute 
+          attach="attributes-color" 
+          count={particleCount} 
+          array={colors} 
+          itemSize={3} 
+        />
+      </bufferGeometry>
+      <pointsMaterial 
+        size={0.25} 
+        vertexColors 
+        transparent 
+        opacity={0.4}
+        blending={THREE.AdditiveBlending} 
+      />
+    </points>
+  );
+}
+
+// ============================================
+// GEAR ICON
+// ============================================
+const GearIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke={color} 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+// ============================================
+// MAIN MENU COMPONENT
+// ============================================
+export default function EnhancedMainMenuNew({ 
+  onStart, 
+  onOpenSettings, 
+  onOpenShop, 
+  onOpenEngagement, 
+  bestScore = 0, 
+  totalCoins = 0, 
+  currentUser, 
+  onOpenAuth,
+  selectedCharacter = 'default'
+}) {
+  const characterName = CHARACTERS[selectedCharacter]?.name || 'Default';
+
+  return (
+    <div className="menu-root" style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100vh', 
+      width: '100%',
+      position: 'relative',
+      background: 'linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%)',
+    }}>
+      {/* ============================================
+          TOP BAR
+          ============================================ */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: `max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))`,
+        paddingBottom: '12px',
+        backgroundColor: 'rgba(15, 15, 26, 0.8)',
+        backdropFilter: 'blur(10px)',
+        border: 'none',
+        gap: '16px',
+        flexShrink: 0,
+      }}>
+        {/* Home Button */}
+        <button style={{
+          background: 'transparent',
+          border: 'none',
+          fontSize: '18px',
+          cursor: 'pointer',
+          padding: '6px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          🏠
+        </button>
+
+        {/* Coins Display - Centered */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          background: 'rgba(26, 26, 46, 0.8)',
+          padding: '6px 14px',
+          borderRadius: '18px',
+          flex: '0 1 auto',
+        }}>
+          <Sparkles size={14} color="var(--highlight-gold)" />
+          <span style={{ 
+            color: 'var(--highlight-gold)', 
+            fontWeight: 600,
+            fontSize: '12px',
+            whiteSpace: 'nowrap',
+          }}>
+            {totalCoins.toLocaleString()}
+          </span>
+        </div>
+
+        {/* Settings Button */}
+        <button
+          onClick={onOpenSettings}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--text-secondary)',
+            flexShrink: 0,
+          }}
+          title="Settings"
+        >
+          <GearIcon size={16} color="currentColor" />
+        </button>
+
+        {/* Auth Button */}
+        <button
+          onClick={onOpenAuth}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--text-secondary)',
+            flexShrink: 0,
+          }}
+          title={currentUser ? "Profile" : "Sign In"}
+        >
+          {currentUser ? <User size={16} /> : <LogIn size={16} />}
+        </button>
+      </div>
+
+      {/* ============================================
+          MIDDLE SECTION - 3D Model
+          ============================================ */}
+      <div style={{
+        flex: 1,
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: 0,
+        overflow: 'hidden',
+        zIndex: 5,
+      }}>
+        {/* Canvas - Full hero area */}
+        <Canvas 
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1,
+          }}
+          camera={{ position: [0, 0.5, 6], fov: 60 }}
+          dpr={[1, 2]}
+          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        >
+          <color attach="background" args={['#0f0f1a']} />
+          <ambientLight intensity={0.6} />
+          <directionalLight 
+            position={[0, 12, 10]}
+            intensity={1.4} 
+            castShadow={false}
+          />
+          <pointLight 
+            position={[8, 6, 6]}
+            color={CHARACTER_COLORS[selectedCharacter]?.light || '#00d4ff'} 
+            intensity={1.0}
+            distance={35}
+          />
+          <pointLight 
+            position={[-8, 6, 6]}
+            color={CHARACTER_COLORS[selectedCharacter]?.secondary || '#9b7fc7'} 
+            intensity={0.8}
+            distance={35}
+          />
+          
+          <Suspense fallback={null}>
+            <PerspectiveCamera makeDefault position={[0, 0.5, 6]} fov={60} />
+            <PlayerModel selectedCharacter={selectedCharacter} />
+            <BackgroundParticles selectedCharacter={selectedCharacter} />
+          </Suspense>
+        </Canvas>
+
+        {/* Title Overlay */}
+        <div style={{
+          position: 'absolute',
+          top: '50px',
+          textAlign: 'center',
+          zIndex: 10,
+          pointerEvents: 'none',
+        }}>
+          <h1 style={{
+            fontSize: 'clamp(32px, 8vw, 52px)',
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #5b8fc7 0%, #9b7fc7 50%, #5ba8a0 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            margin: '0',
+            letterSpacing: '2px',
+          }}>
+            CYBER<br />RUNNER<br />3D
+          </h1>
+          <p style={{
+            color: 'var(--text-secondary)',
+            fontSize: '12px',
+            margin: '8px 0 0 0',
+            letterSpacing: '1px',
+          }}>
+            Refined Cyberpunk Edition
+          </p>
+          <div style={{
+            fontSize: '11px',
+            color: 'var(--text-tertiary)',
+            fontFamily: 'Orbitron, sans-serif',
+            marginTop: '8px',
+            letterSpacing: '0.5px'
+          }}>
+            EQUIPPED: {characterName.toUpperCase()}
+          </div>
+        </div>
+
+        {/* Best Score */}
+        <div style={{
+          position: 'absolute',
+          bottom: '80px',
+          zIndex: 10,
+          textAlign: 'center',
+        }}>
+          <div style={{
+            background: 'rgba(26, 26, 46, 0.8)',
+            padding: '12px 24px',
+            borderRadius: '12px',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(91, 143, 199, 0.3)',
+          }}>
+            <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginBottom: '4px', textTransform: 'uppercase' }}>
+              Best Score
+            </div>
+            <div style={{ 
+              fontSize: '26px', 
+              fontWeight: 700, 
+              color: 'var(--text-primary)',
+              fontFamily: 'Orbitron, sans-serif',
+            }}>
+              {bestScore.toLocaleString()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================
+          BOTTOM SECTION - Buttons
+          ============================================ */}
+      <div style={{
+        padding: 'clamp(12px, 3vw, 18px)',
+        paddingBottom: `max(12px, env(safe-area-inset-bottom))`,
+        background: 'rgba(15, 15, 26, 0.9)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(91, 143, 199, 0.1)',
+        zIndex: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        flexShrink: 0,
+      }}>
+        {/* Play Button */}
+        <button
+          onClick={onStart}
+          style={{
+            width: '100%',
+            padding: 'clamp(12px, 2.5vw, 16px)',
+            fontSize: 'clamp(13px, 3vw, 15px)',
+            fontWeight: 600,
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            background: 'linear-gradient(135deg, rgba(91, 143, 199, 0.3) 0%, rgba(91, 143, 199, 0.15) 100%)',
+            border: '2px solid rgba(91, 143, 199, 0.4)',
+            color: 'white',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = '#00d4ff';
+            e.currentTarget.style.boxShadow = '0 0 16px rgba(0, 212, 255, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(91, 143, 199, 0.4)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <Play size={16} />
+          <span>START RUNNING</span>
+        </button>
+
+        {/* Secondary Buttons */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '10px',
+        }}>
+          <button
+            onClick={onOpenShop}
+            style={{
+              padding: 'clamp(10px, 2vw, 12px)',
+              fontSize: 'clamp(11px, 2.5vw, 13px)',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              background: 'rgba(26, 26, 46, 0.6)',
+              border: '1px solid rgba(91, 143, 199, 0.2)',
+              color: 'var(--text-secondary)',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(91, 143, 199, 0.4)';
+              e.currentTarget.style.background = 'rgba(91, 143, 199, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(91, 143, 199, 0.2)';
+              e.currentTarget.style.background = 'rgba(26, 26, 46, 0.6)';
+            }}
+          >
+            <ShoppingCart size={13} />
+            <span>SHOP</span>
+          </button>
+
+          <button
+            onClick={onOpenEngagement}
+            style={{
+              padding: 'clamp(10px, 2vw, 12px)',
+              fontSize: 'clamp(11px, 2.5vw, 13px)',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              background: 'rgba(26, 26, 46, 0.6)',
+              border: '1px solid rgba(91, 143, 199, 0.2)',
+              color: 'var(--text-secondary)',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(91, 143, 199, 0.4)';
+              e.currentTarget.style.background = 'rgba(91, 143, 199, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(91, 143, 199, 0.2)';
+              e.currentTarget.style.background = 'rgba(26, 26, 46, 0.6)';
+            }}
+          >
+            <Sparkles size={13} />
+            <span>REWARDS</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

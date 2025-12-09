@@ -1,0 +1,6 @@
+# Cloudflare Pages configuration
+name = "cyber-runner-3d"
+compatibility_date = "2024-01-01"
+
+[vars]
+VITE_NETLIFY_DEPLOY = "true"

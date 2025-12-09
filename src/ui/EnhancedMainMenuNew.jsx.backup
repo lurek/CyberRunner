@@ -1,0 +1,407 @@
+import React, { useEffect, useRef, useState, Suspense } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { PerspectiveCamera, Environment } from '@react-three/drei';
+import * as THREE from 'three';
+import { Play, ShoppingCart, User, LogIn, Sparkles } from 'lucide-react';
+import { GLBCharacterPreview } from '../game/models/GLBCharacterPreview';
+import { CHARACTERS } from '../utils/constants';
+
+// Background Particles
+function BackgroundParticles() {
+  const particlesRef = useRef();
+  const particleCount = 80;
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+  
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10 - 5;
+    const color = Math.random() > 0.5 ? new THREE.Color('#5b8fc7') : new THREE.Color('#9b7fc7');
+    colors[i * 3] = color.r; 
+    colors[i * 3 + 1] = color.g; 
+    colors[i * 3 + 2] = color.b;
+  }
+  
+  return (
+    <points ref={particlesRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={particleCount} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={particleCount} array={colors} itemSize={3} />
+      </bufferGeometry>
+      <pointsMaterial size={0.1} vertexColors transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+    </points>
+  );
+}
+
+// Custom Gear Icon
+const GearIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke={color} 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    style={{ filter: `drop-shadow(0 0 4px ${color})` }}
+  >
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+export default function EnhancedMainMenuNew({ 
+  onStart, 
+  onOpenSettings, 
+  onOpenShop, 
+  onOpenEngagement, 
+  bestScore = 0, 
+  totalCoins = 0, 
+  currentUser, 
+  onOpenAuth,
+  selectedCharacter = 'default'
+}) {
+  const [pulseScale, setPulseScale] = useState(1);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  
+  useEffect(() => { 
+    const interval = setInterval(() => setPulseScale(p => p === 1 ? 1.05 : 1), 800); 
+    return () => clearInterval(interval); 
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleButtonClick = (callback) => (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (callback) {
+      callback();
+    }
+  };
+
+  // Get character color for theming
+  const characterColor = CHARACTERS[selectedCharacter]?.color || '#5b8fc7';
+
+  return (
+    <div style={{ 
+      position: 'absolute', 
+      inset: 0, 
+      width: '100%', 
+      height: '100%', 
+      zIndex: 1, 
+      overflow: 'hidden', 
+      background: 'linear-gradient(180deg, #0a0a14 0%, #1a0a2e 50%, #0a0a14 100%)',
+      touchAction: 'none'
+    }}>
+      {/* 3D Canvas Background - NO POINTER EVENTS */}
+      <div style={{ 
+        position: 'absolute', 
+        inset: 0, 
+        zIndex: 1,
+        pointerEvents: 'none' 
+      }}>
+        <Canvas 
+          gl={{ antialias: true, alpha: false }} 
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            width: '100%', 
+            height: '100%',
+            pointerEvents: 'none' 
+          }}
+        >
+          <PerspectiveCamera makeDefault position={[0, 0.8, 4.5]} fov={45} />
+          <ambientLight intensity={0.5} />
+          <pointLight position={[5, 5, 5]} intensity={1.2} color={characterColor} />
+          <pointLight position={[-5, 5, 5]} intensity={1.2} color="#9b7fc7" />
+          <spotLight position={[0, 5, 0]} intensity={0.8} angle={0.6} penumbra={1} color="#ffffff" />
+          
+          <Suspense fallback={null}>
+            <GLBCharacterPreview 
+              characterId={selectedCharacter}
+              rotating={false}
+              floatEnabled={true}
+              scale={isMobile ? 0.45 : 0.6}
+              showPlatform={true}
+              platformColor={characterColor}
+            />
+            <BackgroundParticles />
+          </Suspense>
+          
+          <Environment preset="city" />
+          <fog attach="fog" args={['#0a0a14', 6, 15]} />
+        </Canvas>
+      </div>
+
+      {/* UI Layer - WITH POINTER EVENTS */}
+      <div style={{ 
+        position: 'absolute', 
+        inset: 0, 
+        zIndex: 10, 
+        display: 'flex', 
+        flexDirection: 'column',
+        padding: 'max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))',
+        boxSizing: 'border-box',
+        pointerEvents: 'none'
+      }}>
+        {/* Top Bar - Settings & Coins */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: 20,
+          pointerEvents: 'auto',
+          zIndex: 20
+        }}>
+          <button 
+            onClick={handleButtonClick(onOpenSettings)}
+            style={{ 
+              width: 64, 
+              height: 64, 
+              minWidth: 64,
+              minHeight: 64,
+              borderRadius: '50%', 
+              background: 'rgba(20,20,40,0.95)', 
+              border: '3px solid rgba(91,143,199,0.7)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              cursor: 'pointer',
+              touchAction: 'manipulation',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 6px 20px rgba(91,143,199,0.4), inset 0 0 20px rgba(91,143,199,0.1)'
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <GearIcon size={32} color="#5b8fc7" />
+          </button>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 10, 
+            padding: '14px 24px', 
+            borderRadius: 28, 
+            background: 'rgba(20,20,40,0.95)', 
+            border: '3px solid rgba(255,215,0,0.7)',
+            boxShadow: '0 6px 20px rgba(255,215,0,0.4), inset 0 0 20px rgba(255,215,0,0.1)'
+          }}>
+            <span style={{ 
+              fontSize: 22, 
+              fontWeight: 'bold', 
+              color: '#ffd700',
+              textShadow: '0 2px 10px rgba(255,215,0,0.5), 0 0 20px rgba(255,215,0,0.3)'
+            }}>
+              💰 {totalCoins.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Center Content */}
+        <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'flex-end',
+          gap: '20px',
+          paddingBottom: '40px',
+          pointerEvents: 'none'
+        }}>
+          {/* Title */}
+          <h1 style={{ 
+            fontSize: 'clamp(32px, 8vw, 48px)', 
+            fontWeight: 'bold', 
+            textAlign: 'center', 
+            color: characterColor, 
+            textShadow: `0 0 30px ${characterColor}, 0 0 60px ${characterColor}, 0 4px 20px rgba(0,0,0,0.5)`, 
+            marginBottom: 0,
+            letterSpacing: '0.15em',
+            fontFamily: "'Orbitron', sans-serif"
+          }}>
+            CYBER RUNNER
+          </h1>
+          
+          {/* Best Score Badge */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 12, 
+            padding: '16px 32px', 
+            borderRadius: 28, 
+            background: 'rgba(20,20,40,0.95)', 
+            border: '3px solid rgba(255,215,0,0.7)',
+            boxShadow: '0 6px 20px rgba(255,215,0,0.4), inset 0 0 20px rgba(255,215,0,0.1)'
+          }}>
+            <span style={{ 
+              fontSize: 'clamp(20px, 5vw, 26px)', 
+              fontWeight: 'bold', 
+              color: '#ffd700',
+              textShadow: '0 2px 10px rgba(255,215,0,0.6), 0 0 20px rgba(255,215,0,0.3)'
+            }}>
+              🏆 {bestScore.toLocaleString()}
+            </span>
+          </div>
+
+          {/* Main Play Button */}
+          <button 
+            onClick={handleButtonClick(onStart)}
+            style={{ 
+              width: 'min(340px, 90vw)',
+              height: 80,
+              minHeight: 80,
+              borderRadius: 40, 
+              background: 'linear-gradient(135deg, rgba(155,127,199,0.8), rgba(255,0,128,0.6))', 
+              border: '4px solid rgba(155,127,199,0.9)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: 16, 
+              fontSize: 'clamp(20px, 5vw, 26px)', 
+              fontWeight: 'bold', 
+              color: 'white', 
+              cursor: 'pointer', 
+              transform: `scale(${pulseScale})`,
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              touchAction: 'manipulation',
+              pointerEvents: 'auto',
+              boxShadow: '0 8px 32px rgba(155,127,199,0.6), inset 0 0 20px rgba(255,255,255,0.2)',
+              textShadow: '0 3px 10px rgba(0,0,0,0.6)',
+              fontFamily: "'Orbitron', sans-serif",
+              letterSpacing: '0.05em'
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = `scale(${pulseScale})`}
+            onMouseLeave={(e) => e.currentTarget.style.transform = `scale(${pulseScale})`}
+          >
+            <Play size={32} fill="white" /> START RUNNING
+          </button>
+
+          {/* Secondary Buttons Row */}
+          <div style={{ 
+            display: 'flex', 
+            gap: 14, 
+            width: 'min(340px, 90vw)',
+            justifyContent: 'center',
+            pointerEvents: 'auto'
+          }}>
+            <button 
+              onClick={handleButtonClick(onOpenAuth)}
+              style={{ 
+                flex: 1, 
+                height: 64,
+                minHeight: 64,
+                borderRadius: 18, 
+                background: 'rgba(20,20,40,0.95)', 
+                border: '3px solid rgba(91,143,199,0.7)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: 10, 
+                color: '#5b8fc7', 
+                cursor: 'pointer',
+                fontSize: 'clamp(13px, 3.5vw, 16px)',
+                fontWeight: '700',
+                touchAction: 'manipulation',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 6px 18px rgba(91,143,199,0.3), inset 0 0 15px rgba(91,143,199,0.05)',
+                fontFamily: "'Orbitron', sans-serif"
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {currentUser?.isAnonymous ? (
+                <>
+                  <LogIn size={18} /> LINK
+                </>
+              ) : (
+                <>
+                  <User size={18} /> PROFILE
+                </>
+              )}
+            </button>
+            
+            <button 
+              onClick={handleButtonClick(onOpenShop)}
+              style={{ 
+                flex: 1, 
+                height: 64,
+                minHeight: 64,
+                borderRadius: 18, 
+                background: 'rgba(20,20,40,0.95)', 
+                border: '3px solid rgba(91,143,199,0.7)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: 10, 
+                color: '#5b8fc7', 
+                cursor: 'pointer',
+                fontSize: 'clamp(13px, 3.5vw, 16px)',
+                fontWeight: '700',
+                touchAction: 'manipulation',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 6px 18px rgba(91,143,199,0.3), inset 0 0 15px rgba(91,143,199,0.05)',
+                fontFamily: "'Orbitron', sans-serif"
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <ShoppingCart size={18} /> SHOP
+            </button>
+          </div>
+
+          {/* Daily Rewards Button */}
+          <button 
+            onClick={handleButtonClick(onOpenEngagement)}
+            style={{ 
+              width: 'min(340px, 90vw)', 
+              height: 68,
+              minHeight: 68,
+              borderRadius: 20, 
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.5), rgba(255,165,0,0.5))', 
+              border: '3px solid rgba(255,215,0,0.9)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: 12, 
+              color: '#ffd700', 
+              cursor: 'pointer', 
+              fontWeight: 'bold', 
+              fontSize: 'clamp(15px, 4vw, 19px)',
+              touchAction: 'manipulation',
+              transition: 'all 0.2s ease',
+              pointerEvents: 'auto',
+              boxShadow: '0 8px 28px rgba(255,215,0,0.5), inset 0 0 20px rgba(255,255,255,0.2)',
+              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+              fontFamily: "'Orbitron', sans-serif",
+              letterSpacing: '0.05em'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 10px 35px rgba(255,215,0,0.7), inset 0 0 25px rgba(255,255,255,0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 8px 28px rgba(255,215,0,0.5), inset 0 0 20px rgba(255,255,255,0.2)';
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+          >
+            <Sparkles size={22} /> REWARDS
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

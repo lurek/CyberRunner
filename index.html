@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  
+  <!-- ✅ PHASE 0.1: CRITICAL Mobile Viewport Configuration -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  
+  <!-- PWA / Mobile App Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <!-- Prevent iOS gestures from interfering -->
+  <meta name="apple-mobile-web-app-title" content="Cyber Runner 3D" />
+  
+  <!-- Theme colors for mobile browsers -->
+  <meta name="theme-color" content="#000000" />
+  <meta name="msapplication-navbutton-color" content="#000000" />
+  
+  <!-- SEO -->
+  <meta name="description" content="Experience the ultimate cyberpunk endless runner with grappling hooks, wall running, and energy mode!" />
+  <meta name="keywords" content="cyberpunk, runner, game, 3d, endless runner, mobile game" />
+  
+  <title>Cyber Runner 3D</title>
+  
+  <!-- ✅ PHASE 0.1: Prevent iOS bounce/overscroll -->
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    html, body {
+      position: fixed;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #000;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    /* Allow text selection for inputs only */
+    input, textarea {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+.tutorial-hint-container {
+    /* Since we are using a Portal, fixed positioning is now relative to the actual Window Viewport */
+    position: fixed !important; 
+    top: 15vh !important; 
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    
+    /* Extreme Z-Index to stay above everything else in the DOM */
+    z-index: 2147483647 !important; 
+    
+    pointer-events: none !important; /* Crucial: lets clicks pass through to the game canvas below */
+    
+    width: 90% !important;
+    max-width: 600px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    
+    /* Force visibility */
+    visibility: visible !important;
+    
+    will-change: opacity, transform;
+    transition: opacity 0.5s ease-in-out, transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.tutorial-hint-content {
+    /* Dark background with high opacity for readability */
+    background: rgba(15, 23, 42, 0.98) !important; 
+    border: 3px solid #00ffff !important;
+    border-radius: 12px !important;
+    padding: 18px 26px !important;
+    
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 18px !important;
+    
+    /* Enhanced neon glow effect */
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6), 
+                0 0 40px rgba(0, 255, 255, 0.3),
+                0 4px 15px rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(8px) !important;
+    
+    /* Force visibility */
+    visibility: visible !important;
+}
+
+/* Visibility Animation States */
+.tutorial-hint-container.visible {
+    opacity: 1 !important;
+    transform: translateX(-50%) translateY(0) !important;
+    animation: slideInDown 0.5s ease-out forwards !important;
+}
+
+.tutorial-hint-container.hidden {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(-30px) !important;
+    animation: fadeOutUp 0.5s ease-in forwards !important;
+}
+
+/* Text Styling */
+.tutorial-text {
+    color: #ffffff !important;
+    font-family: 'Rajdhani', 'Orbitron', sans-serif !important; 
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 
+                 0 2px 4px #000 !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    white-space: pre-wrap !important; 
+    letter-spacing: 0.5px !important;
+}
+
+/* Icon Styling */
+.tutorial-icon {
+    color: #00ffff !important;
+    font-size: 2.5rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 1)) !important;
+    animation: hintPulse 1.5s infinite !important;
+}
+
+/* Mobile Adjustments */
+.tutorial-hint-container.mobile-mode {
+    top: 18vh !important;
+    width: 94% !important;
+    max-width: 500px !important;
+}
+
+.tutorial-hint-container.mobile-mode .tutorial-hint-content {
+    flex-direction: column !important; 
+    padding: 14px 18px !important;
+    gap: 12px !important;
+    border-width: 2.5px !important;
+}
+
+.tutorial-hint-container.mobile-mode .tutorial-text {
+    font-size: 1.2rem !important;
+    word-break: break-word !important; /* Prevents text overflow */
+}
+
+.tutorial-hint-container.mobile-mode .tutorial-icon {
+    font-size: 2rem !important;
+}
+
+/* Highlight grappling hook hints with gold border */
+.tutorial-hint-content:has(.tutorial-text) {
+    /* Check if text contains grapple-related keywords dynamically */
+}
+
+/* Grappling hook specific styling */
+.tutorial-hint-container:has(.tutorial-icon:contains('🎯')) .tutorial-hint-content {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6),
+                0 0 40px rgba(255, 215, 0, 0.3),
+                0 4px 15px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Animations */
+@keyframes hintPulse {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.9; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px);
+        visibility: hidden;
+    }
+}
+
+/* Ensure the hints are always on top of everything */
+body > .tutorial-hint-container {
+    z-index: 2147483647 !important;
+}

@@ -1,0 +1,237 @@
+import React, { useRef, Suspense, useEffect, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Environment, ContactShadows, Float } from '@react-three/drei';
+import { Play, ShoppingCart, User, Settings, Sparkles, Trophy, LayoutGrid, Users } from 'lucide-react';
+import { CHARACTERS } from '../utils/constants';
+import { GLBCharacterPreview } from '../game/models/GLBCharacterPreview';
+
+// ============================================
+// CYBER RUNNER HOME SCREEN - FIXED VERSION
+// ============================================
+
+export default function CyberRunnerHomeScreen({
+  onStart, onOpenSettings, onOpenShop, onOpenCharacters,
+  onOpenEngagement, onOpenAuth, onOpenAccountProfile, onOpenCharacterPreview, currentUser, bestScore = 0, totalCoins = 0, totalGems = 0, selectedCharacter = 'default'
+}) {
+  const characterName = CHARACTERS[selectedCharacter]?.name || 'Cyber Runner';
+  const characterColor = CHARACTERS[selectedCharacter]?.color || '#5b8fc7';
+  const [pulse, setPulse] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const timer = setInterval(() => setPulse(p => !p), 2000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const btnStyle = (active = false) => ({
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: active ? 'linear-gradient(135deg, rgba(91, 143, 199, 0.6), rgba(20, 20, 40, 0.9))' : 'rgba(26, 26, 46, 0.8)',
+    border: `2px solid ${active ? characterColor : 'rgba(91, 143, 199, 0.5)'}`,
+    borderRadius: '16px', color: '#fff', cursor: 'pointer',
+    backdropFilter: 'blur(12px)', transition: 'all 0.3s ease',
+    fontFamily: "'Orbitron', sans-serif", textTransform: 'uppercase',
+    position: 'relative', overflow: 'hidden',
+    boxShadow: active ? `0 0 25px ${characterColor}80` : '0 4px 15px rgba(0,0,0,0.4)',
+    minHeight: '48px',
+    touchAction: 'manipulation'
+  });
+
+  return (
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: 'radial-gradient(circle at 50% 40%, #581c87 0%, #1e1b4b 60%, #020617 100%)', overflow: 'hidden', color: 'white', fontFamily: "'Inter', sans-serif" }}>
+      
+      {/* 3D BACKGROUND WITH CHARACTER - FIXED T-POSE */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0.8, 4.5], fov: 45 }}>
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 8, 10]} intensity={1.5} color="#ffffff" castShadow />
+          <pointLight position={[-5, 2, 5]} intensity={1.2} color={characterColor} />
+          <pointLight position={[5, 2, 5]} intensity={1.0} color="#9b7fc7" />
+          <spotLight position={[0, 5, 0]} intensity={1} angle={0.6} penumbra={1} color="#ffffff" />
+          <Environment preset="city" />
+          
+          <Suspense fallback={null}>
+            <GLBCharacterPreview 
+              characterId={selectedCharacter}
+              rotating={false}
+              floatEnabled={true}
+              scale={isMobile ? 0.45 : 0.6}
+              showPlatform={true}
+              platformColor={characterColor}
+            />
+          </Suspense>
+          
+          <fog attach="fog" args={['#020617', 6, 15]} />
+        </Canvas>
+      </div>
+
+      {/* UI OVERLAY */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', flexDirection: 'column', padding: 'max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))', justifyContent: 'space-between', pointerEvents: 'none' }}>
+        
+        {/* HEADER */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pointerEvents: 'auto', zIndex: 20 }}>
+          <button onClick={() => window.location.reload()} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '12px', border: 'none', cursor: 'pointer', minWidth: '48px', minHeight: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LayoutGrid size={20} color="#fff" />
+          </button>
+          
+          <div style={{ display: 'flex', gap: '12px', background: 'rgba(0,0,0,0.7)', borderRadius: '30px', padding: '10px 20px', border: `2px solid ${characterColor}60`, boxShadow: `0 4px 20px ${characterColor}40` }}>
+            <span style={{ color: '#ffd700', fontWeight: 'bold', fontSize: 'clamp(14px, 3vw, 16px)' }}>🪙 {totalCoins.toLocaleString()}</span>
+            <span style={{ color: '#c084fc', fontWeight: 'bold', fontSize: 'clamp(14px, 3vw, 16px)' }}>💎 {totalGems}</span>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={onOpenSettings} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '12px', padding: '12px', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', minWidth: '48px', minHeight: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+              <Settings size={20} color="white"/>
+            </button>
+            {currentUser && !currentUser.isAnonymous ? (
+              <button onClick={onOpenAccountProfile} style={{ background: `${characterColor}40`, borderRadius: '12px', padding: '12px', border: `2px solid ${characterColor}80`, cursor: 'pointer', minWidth: '48px', minHeight: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 15px ${characterColor}40`, transition: 'all 0.2s' }}>
+                <User size={20} color="white"/>
+              </button>
+            ) : (
+              <button onClick={onOpenAuth} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '12px', padding: '12px', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', minWidth: '48px', minHeight: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+                <User size={20} color="white"/>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* CENTER - TITLE & BEST SCORE */}
+        <div style={{ textAlign: 'center', pointerEvents: 'none' }}>
+          <h1 style={{ 
+            fontFamily: "'Orbitron', sans-serif", 
+            fontSize: 'clamp(32px, 10vw, 48px)', 
+            fontWeight: '900', 
+            background: `linear-gradient(180deg, #fff, ${characterColor})`, 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent', 
+            filter: `drop-shadow(0 0 20px ${characterColor}60)`,
+            lineHeight: 1.2,
+            margin: 0,
+            letterSpacing: '0.05em'
+          }}>
+            CYBER RUNNER
+          </h1>
+          
+          <div style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            background: 'rgba(0,0,0,0.7)', 
+            borderRadius: '30px', 
+            padding: '12px 24px', 
+            marginTop: '16px',
+            border: `2px solid ${characterColor}60`,
+            boxShadow: `0 4px 20px ${characterColor}40`
+          }}>
+            <Trophy size={24} color={characterColor} />
+            <span style={{ fontSize: 'clamp(18px, 4vw, 24px)', fontWeight: 'bold', color: '#fff' }}>
+              {bestScore.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* BOTTOM - ACTION BUTTONS */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', pointerEvents: 'auto', maxWidth: '400px', margin: '0 auto', width: '100%' }}>
+          {/* MAIN PLAY BUTTON */}
+          <button
+            onClick={onStart}
+            style={{
+              ...btnStyle(true),
+              padding: '20px',
+              fontSize: 'clamp(18px, 4vw, 22px)',
+              fontWeight: '900',
+              background: 'linear-gradient(135deg, rgba(155,127,199,0.7), rgba(255,0,128,0.6))',
+              border: `3px solid ${characterColor}`,
+              boxShadow: `0 0 35px ${characterColor}80`,
+              transform: pulse ? 'scale(1.03)' : 'scale(1)',
+              gap: '12px',
+              minHeight: '64px'
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = pulse ? 'scale(1.03)' : 'scale(1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = pulse ? 'scale(1.03)' : 'scale(1)'}
+          >
+            <Play size={28} fill="white" /> START RUNNING
+          </button>
+
+          {/* SECONDARY BUTTONS GRID */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+            <button 
+              onClick={() => onOpenCharacters?.()} 
+              style={{ 
+                ...btnStyle(), 
+                padding: '16px 12px', 
+                fontSize: 'clamp(13px, 3vw, 15px)', 
+                gap: '8px',
+                fontWeight: '700'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = `0 0 20px ${characterColor}60`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+              }}
+            >
+              <Users size={20} /> RUNNERS
+            </button>
+            
+            <button 
+              onClick={onOpenShop} 
+              style={{ 
+                ...btnStyle(), 
+                padding: '16px 12px', 
+                fontSize: 'clamp(13px, 3vw, 15px)', 
+                gap: '8px',
+                fontWeight: '700'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = `0 0 20px ${characterColor}60`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+              }}
+            >
+              <ShoppingCart size={20} /> SHOP
+            </button>
+          </div>
+
+          {/* DAILY REWARDS BUTTON */}
+          <button
+            onClick={onOpenEngagement}
+            style={{
+              ...btnStyle(),
+              padding: '18px',
+              fontSize: 'clamp(15px, 3.5vw, 17px)',
+              fontWeight: 'bold',
+              background: 'linear-gradient(135deg, rgba(255,215,0,0.5), rgba(255,165,0,0.5))',
+              border: '3px solid rgba(255,215,0,0.9)',
+              color: '#ffd700',
+              boxShadow: '0 0 25px rgba(255,215,0,0.5)',
+              gap: '10px',
+              minHeight: '56px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 0 35px rgba(255,215,0,0.7)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 0 25px rgba(255,215,0,0.5)';
+            }}
+          >
+            <Sparkles size={22} /> DAILY REWARDS
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

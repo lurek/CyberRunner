@@ -1,0 +1,206 @@
+/* ================================
+   PHASE 0.1: MOBILE RESPONSIVENESS (Android & iOS Safe Areas)
+   Enhanced for notch/punch-hole displays
+   ================================ */
+
+:root {
+  /* Safe area variables from system with fallbacks */
+  /* Android typically needs at least 24px for status bar, 48px for navigation */
+  --safe-area-inset-top: env(safe-area-inset-top, 24px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+
+  /* Touch target sizes (minimum 48px per Material Design) */
+  --touch-target-min: 48px;
+
+  /* Standard Padding: Safe Area + Base Padding */
+  /* This ensures content is never hidden behind the status bar, notch, or home indicator */
+  --mobile-padding-top: max(16px, calc(var(--safe-area-inset-top) + 8px));
+  --mobile-padding-bottom: max(16px, calc(var(--safe-area-inset-bottom) + 8px));
+  --mobile-padding-left: max(8px, calc(var(--safe-area-inset-left) + 8px));
+  --mobile-padding-right: max(8px, calc(var(--safe-area-inset-right) + 8px));
+
+  /* For HUD elements that need extra clearance from notches */
+  --safe-hud-top: max(32px, calc(var(--safe-area-inset-top) + 16px));
+  --safe-hud-bottom: max(32px, calc(var(--safe-area-inset-bottom) + 16px));
+}
+
+/* Force full screen without scrolling */
+html,
+body {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Apply safe area padding to root container */
+#root {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* Don't apply padding to root - let child components handle it */
+}
+
+/* ================================
+   GAME CANVAS SAFE AREA HANDLING
+   ================================ */
+
+/* The game canvas should fill the entire screen (edge-to-edge) */
+.game-canvas,
+.canvas-full {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+/* ================================
+   HUD / UI OVERLAY POSITIONING
+   These respect safe areas
+   ================================ */
+
+/* Top-left positioned elements (score, coins, etc.) */
+.safe-top-left {
+  position: fixed;
+  top: var(--safe-hud-top);
+  left: var(--mobile-padding-left);
+  z-index: 100;
+}
+
+/* Top-right positioned elements (settings, pause button, etc.) */
+.safe-top-right {
+  position: fixed;
+  top: var(--safe-hud-top);
+  right: var(--mobile-padding-right);
+  z-index: 100;
+}
+
+/* Top-center positioned elements (health bar, etc.) */
+.safe-top-center {
+  position: fixed;
+  top: var(--safe-hud-top);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+/* Bottom-center positioned elements (action buttons, etc.) */
+.safe-bottom {
+  position: fixed;
+  bottom: var(--safe-hud-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - var(--mobile-padding-left) - var(--mobile-padding-right));
+  max-width: 600px;
+  z-index: 100;
+}
+
+/* Bottom-left positioned elements */
+.safe-bottom-left {
+  position: fixed;
+  bottom: var(--safe-hud-bottom);
+  left: var(--mobile-padding-left);
+  z-index: 100;
+}
+
+/* Bottom-right positioned elements */
+.safe-bottom-right {
+  position: fixed;
+  bottom: var(--safe-hud-bottom);
+  right: var(--mobile-padding-right);
+  z-index: 100;
+}
+
+/* ================================
+   MODAL / OVERLAY SAFE AREA HANDLING
+   ================================ */
+
+/* Full-screen modal overlays should respect safe areas */
+.auth-panel-overlay,
+.revive-overlay,
+.leaderboard-overlay,
+.engagement-hub-overlay,
+.daily-missions-overlay,
+.achievements-overlay,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+  box-sizing: border-box;
+}
+
+/* Menu panels that need safe area padding */
+.menu-panel {
+  max-height: calc(100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom) - 32px);
+  overflow-y: auto;
+}
+
+/* ================================
+   ANDROID-SPECIFIC ADJUSTMENTS
+   ================================ */
+
+/* Android devices may not support env() - use @supports to detect */
+@supports not (padding-top: env(safe-area-inset-top)) {
+  :root {
+    /* Fallback values for Android devices without env() support */
+    --safe-area-inset-top: 24px;
+    --safe-area-inset-bottom: 0px;
+    --safe-area-inset-left: 0px;
+    --safe-area-inset-right: 0px;
+  }
+}
+
+/* For devices with punch-hole cameras (typically top-left or top-right) */
+@media (display-mode: fullscreen) {
+  :root {
+    /* Ensure minimum safe area for punch-hole displays */
+    --safe-hud-top: max(40px, calc(var(--safe-area-inset-top) + 16px));
+  }
+}
+
+/* ================================
+   UTILITY CLASSES
+   ================================ */
+
+/* Apply safe padding to any element */
+.safe-padding {
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Apply safe margin to any element */
+.safe-margin {
+  margin-top: var(--safe-area-inset-top);
+  margin-bottom: var(--safe-area-inset-bottom);
+  margin-left: var(--safe-area-inset-left);
+  margin-right: var(--safe-area-inset-right);
+}
+
+/* Prevent text selection on game elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}

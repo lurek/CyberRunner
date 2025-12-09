@@ -1,0 +1,81 @@
+/**
+ * DangerZoneVisuals.css
+ * Styling for jump safety danger indicators
+ */
+
+.danger-zone-indicator {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.danger-zone-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0) 70%);
+  animation: danger-pulse 0.8s ease-in-out infinite;
+}
+
+.danger-zone-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 0, 0, 0.8);
+  box-shadow: 
+    0 0 10px rgba(255, 0, 0, 0.8),
+    inset 0 0 10px rgba(255, 0, 0, 0.6);
+  animation: danger-ring 1.2s ease-out infinite;
+}
+
+@keyframes danger-pulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+@keyframes danger-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Slow-motion overlay effect */
+.slow-motion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 150, 255, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+  pointer-events: none;
+  z-index: 99;
+  animation: slow-mo-flash 0.8s ease-in-out;
+}
+
+@keyframes slow-mo-flash {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
