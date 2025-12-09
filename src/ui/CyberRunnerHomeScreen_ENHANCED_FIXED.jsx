@@ -309,6 +309,39 @@ export default function CyberRunnerHomeScreen({
             START RUNNING
           </button>
 
+          {/* ✅ APK DOWNLOAD - Only visible on Cloudflare Pages deployment */}
+          {import.meta.env.VITE_CLOUDFLARE_DEPLOY === 'true' && (
+            <a
+              href="https://github.com/lurek/CyberRunner/releases/download/Apk/Cyber_Runner.apk"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: getResponsiveValue('10px 16px', '12px 20px', '14px 24px'),
+                borderRadius: '12px',
+                border: '1px solid rgba(0, 255, 136, 0.4)',
+                background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 200, 100, 0.1))',
+                color: '#00ff88',
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: getResponsiveValue('11px', '12px', '14px'),
+                fontWeight: '700',
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                boxShadow: '0 4px 15px rgba(0, 255, 136, 0.2)',
+                transition: 'all 0.2s ease',
+                textTransform: 'uppercase'
+              }}
+            >
+              <Smartphone size={getResponsiveValue(14, 16, 18)} />
+              <Download size={getResponsiveValue(14, 16, 18)} />
+              DOWNLOAD APK
+            </a>
+          )}
+
           {/* ✅ APK DOWNLOAD - Only visible on Netlify deployment */}
           {import.meta.env.VITE_NETLIFY_DEPLOY === 'true' && (
             <a

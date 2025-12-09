@@ -11,9 +11,9 @@
 
 // Import Firebase modules
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInAnonymously, 
+import {
+  getAuth,
+  signInAnonymously,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -30,31 +30,31 @@ import {
   EmailAuthProvider,
   deleteUser
 } from 'firebase/auth';
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  onSnapshot, 
-  collection, 
-  query, 
-  orderBy, 
-  limit, 
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  onSnapshot,
+  collection,
+  query,
+  orderBy,
+  limit,
   getDocs,
   updateDoc,
   deleteDoc,
   where
 } from 'firebase/firestore';
 
-// Your Firebase configuration
+// Your Firebase configuration - loaded from environment variables for security
 const firebaseConfig = {
-  apiKey: "AIzaSyDc5h6MA4RSLV5wJJVgSOLyufvE5KRQQSs",
-  authDomain: "cyberrunner3d.firebaseapp.com",
-  projectId: "cyberrunner3d",
-  storageBucket: "cyberrunner3d.firebasestorage.app",
-  messagingSenderId: "632803915976",
-  appId: "1:632803915976:web:63bdffde130bdb6ab98dfd",
-  measurementId: "G-GEQ9C6RY0N"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase (with error handling)
@@ -67,7 +67,7 @@ try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
-  
+
   console.log('🔥 Firebase initialized successfully');
   console.log('✅ Authentication methods enabled:');
   console.log('   - Email/Password');
@@ -79,27 +79,27 @@ try {
   console.error('❌ Firebase initialization failed:', error);
   console.log('Please check your firebase-config.js file');
   initError = error;
-  
+
   // ✅ FIX: Create safe fallback objects to prevent crashes
   auth = {
     currentUser: null,
     onAuthStateChanged: (callback) => {
       setTimeout(() => callback(null), 0);
-      return () => {};
+      return () => { };
     }
   };
   db = null;
 }
 
 // Export initialized instances
-export { 
+export {
   // App & Services
-  app, 
-  auth, 
+  app,
+  auth,
   db,
-  
+
   // Auth methods
-  signInAnonymously, 
+  signInAnonymously,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -112,16 +112,16 @@ export {
   linkWithCredential,
   linkWithPopup,
   deleteUser,
-  
+
   // Auth providers
   GoogleAuthProvider,
   OAuthProvider,
   EmailAuthProvider,
-  
+
   // Firestore methods
-  doc, 
-  setDoc, 
-  getDoc, 
+  doc,
+  setDoc,
+  getDoc,
   onSnapshot,
   collection,
   query,

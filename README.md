@@ -8,7 +8,7 @@
 
 **The Ultimate Cyberpunk Endless Runner Experience**
 
-[Play Now](#) • [Report Bug](https://github.com/lurek/CyberRunner/issues) • [Request Feature](https://github.com/lurek/CyberRunner/issues)
+[Play Now](https://cyberrunner.pages.dev/) • [Report Bug](https://github.com/lurek/CyberRunner/issues) • [Request Feature](https://github.com/lurek/CyberRunner/issues)
 
 </div>
 

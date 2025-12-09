@@ -29,11 +29,13 @@ android/local.properties
 android/.idea
 android/capacitor-cordova-android-plugins
 
-# Environment files
+# Environment files (SECURITY: never commit .env with real credentials)
 .env
 .env.local
 .env.*.local
+!.env.example
 !.env.netlify
+!.env.cloudflare
 
 # Archive folders
 archive_removed_*
